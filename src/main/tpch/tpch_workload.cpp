@@ -174,6 +174,7 @@ void TPCHBenchmark::RunQuery(const TPCHBenchmark::QueryConfig &query_config) {
   overall_stats.init_ms = 0.0;
   overall_stats.plan_ms = 0.0;
   overall_stats.tear_down_ms = 0.0;
+
   for (uint32_t i = 0; i < config_.num_runs; i++) {
     // Reset the counter for this run
     counter.ResetCount();
