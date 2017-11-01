@@ -389,18 +389,17 @@ void CostAndStatsCalculator::Visit(const PhysicalHashGroupBy *op) {
           ->As<PropertyColumns>();
   auto output_stats = generateOutputStat(table_stats_ptr, columns_prop);
 
-  std::vector<oid_t> column_ids;
-  for (auto column : op->columns) {
+  std::vector<std::string> column_names;
+  for (auto column: op->columns) {
     // TODO: Deal with complex expressions like a+b
     if (column->GetExpressionType() == ExpressionType::VALUE_TUPLE) {
-      oid_t column_id = (oid_t)(
-          std::dynamic_pointer_cast<expression::TupleValueExpression>(column)
-              ->GetColumnId());
-      column_ids.push_back(column_id);
+      std::string column_name = std::dynamic_pointer_cast<expression::TupleValueExpression>(
+        column)->GetColumnName();
+      column_names.push_back(column_name);
     }
   }
   output_cost_ +=
-      Cost::HashGroupByCost(table_stats_ptr, column_ids, output_stats);
+      Cost::HashGroupByCost(table_stats_ptr, column_names, output_stats);
   output_stats_ = output_stats;
 };
 void CostAndStatsCalculator::Visit(const PhysicalSortGroupBy *op) {
@@ -418,18 +417,17 @@ void CostAndStatsCalculator::Visit(const PhysicalSortGroupBy *op) {
           ->As<PropertyColumns>();
   auto output_stats = generateOutputStat(table_stats_ptr, columns_prop);
 
-  std::vector<oid_t> column_ids;
+  std::vector<std::string> column_names;
   for (auto column : op->columns) {
     // TODO: Deal with complex expressions like a+b
     if (column->GetExpressionType() == ExpressionType::VALUE_TUPLE) {
-      oid_t column_id = (oid_t)(
-          std::dynamic_pointer_cast<expression::TupleValueExpression>(column)
-              ->GetColumnId());
-      column_ids.push_back(column_id);
+      std::string column_name = std::dynamic_pointer_cast<expression::TupleValueExpression>(
+        column)->GetColumnName();
+      column_name.push_back(column_name);
     }
   }
   output_cost_ +=
-      Cost::SortGroupByCost(table_stats_ptr, column_ids, output_stats);
+      Cost::SortGroupByCost(table_stats_ptr, column_names, output_stats);
   output_stats_ = output_stats;
 };
 void CostAndStatsCalculator::Visit(const PhysicalAggregate *) {
@@ -470,8 +468,7 @@ void CostAndStatsCalculator::Visit(const PhysicalDistinct *) {
           ExpressionType::VALUE_TUPLE) {
     auto tv_expr = std::dynamic_pointer_cast<expression::TupleValueExpression>(
         distinct_prop->GetDistinctColumn(0));
-    oid_t column_id =
-        table_stats_ptr->GetColumnStats(tv_expr->GetColumnName())->column_id;
+    oid_t column_id = table_stats_ptr->GetColumnStats(tv_expr->GetColumnName())->column_id;
     output_cost_ +=
         Cost::DistinctCost(table_stats_ptr, column_id, output_stats);
   }
