@@ -199,7 +199,7 @@ void BindNodeVisitor::Visit(expression::CaseExpression *expr) {
 
 void BindNodeVisitor::Visit(expression::StarExpression *expr) {
   if (!BinderContext::HasTables(context_))
-    throw Exception("Invalid expression" + expr->GetInfo());
+    throw BinderException("Invalid expression" + expr->GetInfo());
 }
 
 // Deduce value type for these expressions
