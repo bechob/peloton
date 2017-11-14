@@ -17,6 +17,8 @@
 #include "type/ephemeral_pool.h"
 #include "type/types.h"
 
+#define DEFAULT_SAMPLE_SIZE 100
+
 namespace peloton {
 namespace storage {
 class DataTable;
