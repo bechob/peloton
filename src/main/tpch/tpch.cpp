@@ -59,7 +59,7 @@ void ParseArguments(int argc, char **argv, Configuration &config) {
       }
       case 'n': {
         char *input = optarg;
-        config.num_runs = static_cast<uint32_t>(std::atoi(input));
+        config.num_runs = static_cast<uint32_t>(atoi(input));
       }
       case 'd': {
         config.dictionary_encode = true;

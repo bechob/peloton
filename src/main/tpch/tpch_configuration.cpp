@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 
 #include "common/logger.h"
+#include "type/type.h"
 
 namespace peloton {
 namespace benchmark {
