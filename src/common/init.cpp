@@ -14,6 +14,10 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <gflags/gflags.h>
+#include "main/tpch/tpch_database.cpp"
+#include "main/tpch/tpch_workload.cpp"
+#include "main/tpch/tpch_configuration.cpp"
+
 
 #include "brain/index_tuner.h"
 #include "brain/layout_tuner.h"
@@ -24,10 +28,18 @@
 #include "settings/settings_manager.h"
 #include "threadpool/mono_queue_pool.h"
 
+
 namespace peloton {
 
 ThreadPool thread_pool;
 
+namespace benchmark {
+namespace tpch {
+class TPCHDatabase;
+class TPCHBenchmark;
+
+}
+}
 void PelotonInit::Initialize() {
   CONNECTION_THREAD_COUNT = std::thread::hardware_concurrency();
   LOGGING_THREAD_COUNT = 1;
@@ -79,6 +91,19 @@ void PelotonInit::Initialize() {
   pg_catalog->CreateDatabase(DEFAULT_DB_NAME, txn);
 
   txn_manager.CommitTransaction(txn);
+
+  benchmark::tpch::Configuration config;
+  config.suffix = "tbl";
+  config.data_dir = "/home/patrick/peloton/tpch-small";
+
+  // Create the DB instance
+  benchmark::tpch::TPCHDatabase tpch_db{config};
+
+  // Create the benchmark
+  benchmark::tpch::TPCHBenchmark tpch_benchmark{config, tpch_db};
+
+  // Run the benchmark
+  tpch_benchmark.LoadTables();
 }
 
 void PelotonInit::Shutdown() {
