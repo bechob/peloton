@@ -51,6 +51,8 @@ class TPCHDatabase {
   // Create all tables
   void CreateTables() const;
 
+  void CreateTable(storage::DataTable* dt, std::vector<catalog::Column> columns) const;
+
   void LoadTable(TableId table_id);
 
   // Load individual tables
