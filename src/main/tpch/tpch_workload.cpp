@@ -185,7 +185,7 @@ void TPCHBenchmark::RunQuery(const TPCHBenchmark::QueryConfig &query_config) {
 
     // Execute query in a transaction
     codegen::Query::RuntimeStats runtime_stats;
-    compiled_query->Execute(*txn, counter.GetCountAsState(), &runtime_stats);
+    compiled_query->Execute(*txn, nullptr, counter.GetCountAsState(), &runtime_stats);
 
     // Commit transaction
     txn_manager.CommitTransaction(txn);
@@ -198,7 +198,7 @@ void TPCHBenchmark::RunQuery(const TPCHBenchmark::QueryConfig &query_config) {
 
   LOG_INFO("%s: ==============================================",
            query_config.query_name.c_str());
-  LOG_INFO("# Runs: %u, # Result tuples: %lu", config_.num_runs,
+  LOG_INFO("# Runs: %u, # Result tuples: %llu", config_.num_runs,
            counter.GetCount());
   LOG_INFO("Setup: %.2lf, IR Gen: %.2lf, Compile: %.2lf",
            compile_stats.setup_ms, compile_stats.ir_gen_ms,

@@ -128,7 +128,7 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ3Plan() const {
 
   std::unique_ptr<planner::AbstractPlan> cust_order_hj_plan{new planner::HashJoinPlan(
       JoinType::INNER, nullptr, std::move(projection),
-      schema, left_hash_keys, right_hash_keys)};
+      schema, left_hash_keys, right_hash_keys, true)};
 
   //////////////////////////////////////////////////////////////////////////////
   /// ORDER - LINITEM HASH PLAN
@@ -173,7 +173,7 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ3Plan() const {
 
   std::unique_ptr<planner::AbstractPlan> hj_plan2{new planner::HashJoinPlan(
       JoinType::INNER, nullptr, std::move(projection2),
-      ol_schema, left_hash_keys2, right_hash_keys2)};
+      ol_schema, left_hash_keys2, right_hash_keys2, true)};
 
   //////////////////////////////////////////////////////////////////////////////
   /// AGGREGATION

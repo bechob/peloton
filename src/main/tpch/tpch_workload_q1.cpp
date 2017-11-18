@@ -59,13 +59,13 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ1Plan() const {
   planner::AggregatePlan::AggTerm agg1{
       ExpressionType::AGGREGATE_SUM,
       new expression::TupleValueExpression(type::TypeId::INTEGER, 0, 2)};
-  agg1.agg_ai.type = type::TypeId::INTEGER;
+  agg1.agg_ai.type = codegen::type::Type(type::TypeId::INTEGER, false);
 
   // sum(l_extendedprice) as sum_base_price
   planner::AggregatePlan::AggTerm agg2{
       ExpressionType::AGGREGATE_SUM,
       new expression::TupleValueExpression(type::TypeId::DECIMAL, 0, 3)};
-  agg2.agg_ai.type = type::TypeId::DECIMAL;
+  agg2.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // sum(l_extendedprice * (1 - l_discount)) as sum_disc_price
   planner::AggregatePlan::AggTerm agg3{
@@ -80,7 +80,7 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ1Plan() const {
                   type::ValueFactory::GetDecimalValue(1.0)),
               new expression::TupleValueExpression(type::TypeId::DECIMAL,
                                                    0, 4)))};
-  agg3.agg_ai.type = type::TypeId::DECIMAL;
+  agg3.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // sum(l_extendedprice * (1 - l_discount) * (1 + l_tax))
   planner::AggregatePlan::AggTerm agg4{
@@ -107,30 +107,30 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ1Plan() const {
                       type::ValueFactory::GetDecimalValue(1.0)),
                   new expression::TupleValueExpression(
                       type::TypeId::DECIMAL, 0, 5))))};
-  agg4.agg_ai.type = type::TypeId::DECIMAL;
+  agg4.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // avg(l_quantity)
   planner::AggregatePlan::AggTerm agg5{
       ExpressionType::AGGREGATE_AVG,
       new expression::TupleValueExpression(type::TypeId::INTEGER, 0, 2)};
-  agg5.agg_ai.type = type::TypeId::DECIMAL;
+  agg5.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // avg(l_extendedprice)
   planner::AggregatePlan::AggTerm agg6{
       ExpressionType::AGGREGATE_AVG,
       new expression::TupleValueExpression(type::TypeId::DECIMAL, 0, 3)};
-  agg6.agg_ai.type = type::TypeId::DECIMAL;
+  agg6.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // avg(l_discount)
   planner::AggregatePlan::AggTerm agg7{
       ExpressionType::AGGREGATE_AVG,
       new expression::TupleValueExpression(type::TypeId::DECIMAL, 0, 4)};
-  agg7.agg_ai.type = type::TypeId::DECIMAL;
+  agg7.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   // count(*)
   planner::AggregatePlan::AggTerm agg8{ExpressionType::AGGREGATE_COUNT_STAR,
                                        nullptr};
-  agg8.agg_ai.type = type::TypeId::BIGINT;
+  agg8.agg_ai.type = codegen::type::Type(type::TypeId::BIGINT, false);
 
   auto output_schema =
       std::shared_ptr<const catalog::Schema>{new catalog::Schema(

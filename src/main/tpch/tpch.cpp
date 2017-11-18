@@ -12,7 +12,7 @@
 
 #include <cstdio>
 #include <getopt.h>
-#include <string>
+#include <string>./
 
 #include "benchmark/tpch/tpch_configuration.h"
 #include "benchmark/tpch/tpch_database.h"

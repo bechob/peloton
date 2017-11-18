@@ -16,13 +16,15 @@
 #include <unordered_map>
 
 #include "benchmark/tpch/tpch_configuration.h"
+#include "storage/database.h"
+#include "storage/data_table.h"
 
 namespace peloton {
 
-namespace storage {
-class Database;
-class DataTable;
-}  // namespace storage
+//namespace storage {
+//class Database;
+//class DataTable;
+//}  // namespace storage
 
 namespace benchmark {
 namespace tpch {

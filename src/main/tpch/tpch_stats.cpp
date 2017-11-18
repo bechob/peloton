@@ -29,7 +29,8 @@
 #include "catalog/column_catalog.h"
 #include "executor/testing_executor_util.h"
 #include "sql/testing_sql_util.h"
-
+#include "concurrency/transaction_manager_factory.h"
+#include "storage/storage_manager.h"
 namespace peloton {
 namespace benchmark {
 namespace tpch {
@@ -40,13 +41,13 @@ TPCHStats::TPCHStats(const Configuration &config, TPCHDatabase &db)
 void TPCHStats::RunTest() {
   std::vector<benchmark::tpch::TableId> tpch_table_ids = {
     TableId::Part,
-    //TableId::Supplier,
-    //TableId::PartSupp,
+    TableId::Supplier,
+    TableId::PartSupp,
     TableId::Customer,
     TableId::Nation,
     TableId::Lineitem,
-    //TableId::Region,
-    //TableId::Orders
+    TableId::Region,
+    TableId::Orders
   };
   
   for (auto tid : tpch_table_ids) {
@@ -61,13 +62,13 @@ void TPCHStats::RunTest() {
   stats_storage->AnalyzeStatsForAllTables(txn);
   txn_manager.CommitTransaction(txn);
 
-  auto catalog = catalog::Catalog::GetInstance();
-  auto database = catalog->GetDatabaseWithOid(44);
+  auto storage = storage::StorageManager::GetInstance();
+  auto database = storage->GetDatabaseWithOid(44);
 
   for (auto tid : tpch_table_ids) {
     //if (db_.TableIsLoaded(tid)) {
     uint32_t t_id = static_cast<uint32_t>(tid);
-    auto table = catalog->GetTableWithOid(44, t_id);
+    auto table = storage->GetTableWithOid(44, t_id);
     oid_t db_id = database->GetOid();
     oid_t table_id = table->GetOid();
     

@@ -14,6 +14,14 @@
 
 #include "benchmark/tpch/tpch_workload.h"
 #include "catalog/catalog.h"
+#include <sys/stat.h>
+#include "catalog/column.h"
+#include "storage/storage_manager.h"
+#include "concurrency/transaction_manager_factory.h"
+#include "storage/table_factory.h"
+#include "type/value_factory.h"
+#include "common/timer.h"
+#include "type/ephemeral_pool.h"
 
 namespace peloton {
 namespace benchmark {
@@ -28,7 +36,6 @@ static constexpr oid_t kTPCHDatabaseId = 44;
 void ForEachLine(const std::string fname, std::function<void(char *)> cb) {
   // Open the file and advise the kernel of sequential access pattern
   int input_fd = open(fname.c_str(), O_RDONLY);
-
   const uint32_t BUFFER_SIZE = 16 * 1024;
   char buffer[BUFFER_SIZE] = {0};
   char *buf_pos = buffer;
@@ -122,8 +129,7 @@ void TPCHDatabase::CreateTables() const {
 }
 
 storage::Database &TPCHDatabase::GetDatabase() const {
-  auto *catalog = catalog::Catalog::GetInstance();
-  return *catalog->GetDatabaseWithOid(kTPCHDatabaseId);
+  return *storage::StorageManager::GetInstance()->GetDatabaseWithOid(kTPCHDatabaseId);
 }
 
 storage::DataTable &TPCHDatabase::GetTable(TableId table_id) const {
@@ -454,7 +460,7 @@ void TPCHDatabase::LoadPartTable() {
   PL_ASSERT(txn_manager.CommitTransaction(txn) == ResultType::SUCCESS);
 
   timer.Stop();
-  LOG_INFO("Loading Part finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Part finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -538,7 +544,7 @@ void TPCHDatabase::LoadSupplierTable() {
   PL_ASSERT(txn_manager.CommitTransaction(txn) == ResultType::SUCCESS);
 
   timer.Stop();
-  LOG_INFO("Loading Supplier finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Supplier finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -635,7 +641,7 @@ void TPCHDatabase::LoadCustomerTable() {
   PL_ASSERT(txn_manager.CommitTransaction(txn) == ResultType::SUCCESS);
 
   timer.Stop();
-  LOG_INFO("Loading Customer finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Customer finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -701,7 +707,7 @@ void TPCHDatabase::LoadNationTable() {
   PL_ASSERT(txn_manager.CommitTransaction(txn) == ResultType::SUCCESS);
 
   timer.Stop();
-  LOG_INFO("Loading Nation finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Nation finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -820,7 +826,7 @@ void TPCHDatabase::LoadLineitemTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Lineitem finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Lineitem finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded

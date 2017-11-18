@@ -112,7 +112,7 @@ std::unique_ptr<planner::AbstractPlan> TPCHBenchmark::ConstructQ6Plan() const {
           ExpressionType::OPERATOR_MULTIPLY, type::TypeId::DECIMAL,
           new expression::TupleValueExpression(type::TypeId::DECIMAL, 0, 0),
           new expression::TupleValueExpression(type::TypeId::DECIMAL, 0, 1))};
-  revenue_agg.agg_ai.type = type::TypeId::DECIMAL;
+  revenue_agg.agg_ai.type = codegen::type::Type(type::TypeId::DECIMAL, false);
 
   auto output_schema =
       std::shared_ptr<const catalog::Schema>{new catalog::Schema(
