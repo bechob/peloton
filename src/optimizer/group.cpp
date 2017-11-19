@@ -66,6 +66,15 @@ std::shared_ptr<GroupExpression> Group::GetBestExpression(
   return nullptr;
 }
 
+double Group::GetBestExpressionCost(PropertySet properties) {
+  auto it = lowest_cost_expressions_.find(properties);
+  if (it != lowest_cost_expressions_.end()) {
+    return std::get<0>(it->second);
+  }
+  LOG_TRACE("Didn't get best expression with required properties!");
+  return 0.0;
+}
+
 const std::vector<std::shared_ptr<GroupExpression>> &Group::GetExpressions()
     const {
   return expressions_;

@@ -11,7 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "codegen/query.h"
-
+#include "planner/abstract_plan.h"
 #include "storage/storage_manager.h"
 #include "common/logger.h"
 #include "common/timer.h"
@@ -76,12 +76,14 @@ void Query::Execute(concurrency::Transaction &txn,
   }
 
   // Time initialization
+
+  timer.Stop();
   if (stats != nullptr) {
-    timer.Stop();
     stats->init_ms = timer.GetDuration();
-    timer.Reset();
-    timer.Start();
   }
+  timer.Reset();
+  timer.Start();
+
 
   // Execute the query!
   LOG_TRACE("Calling query's plan() ...");
@@ -94,12 +96,19 @@ void Query::Execute(concurrency::Transaction &txn,
   }
 
   // Timer plan execution
+
+  timer.Stop();
   if (stats != nullptr) {
-    timer.Stop();
     stats->plan_ms = timer.GetDuration();
-    timer.Reset();
-    timer.Start();
   }
+  LOG_INFO("Running query %s plan() time %f estimate cost %f", GetPlan().GetInfo().c_str(), timer.GetDuration(),
+                GetPlan().GetCost());
+
+  timer.Reset();
+  timer.Start();
+
+
+
 
   // Clean up
   LOG_TRACE("Calling query's tearDown() ...");

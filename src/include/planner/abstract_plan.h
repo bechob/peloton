@@ -83,6 +83,12 @@ class AbstractPlan : public Printable {
   // delete this function and pass this information to constructor
   void SetCardinality(int cardinality) { estimated_cardinality_ = cardinality; }
 
+  // Get the estimated cost of this plan
+  double GetCost() const { return estimated_cost_; }
+
+  // Set the estimated cost of this plan
+  void SetCost(double cost) { estimated_cost_ = cost; }
+
   //===--------------------------------------------------------------------===//
   // Utilities
   //===--------------------------------------------------------------------===//
@@ -135,6 +141,8 @@ class AbstractPlan : public Printable {
   // TODO: This field is harded coded now. This needs to be changed when
   // optimizer has the cost model and cardinality estimation
   int estimated_cardinality_ = 500000;
+
+  double estimated_cost_ = 0;
 
  private:
   DISALLOW_COPY_AND_MOVE(AbstractPlan);
