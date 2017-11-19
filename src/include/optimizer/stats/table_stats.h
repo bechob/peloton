@@ -33,21 +33,22 @@ class ColumnStats;
 //===--------------------------------------------------------------------===//
 class TableStats : public Stats {
  public:
-  TableStats() : TableStats((size_t)0) {}
+  TableStats() : TableStats("", (size_t)0) {}
 
-  TableStats(size_t num_rows, bool is_base_table = true)
+  TableStats(std::string table_name, size_t num_rows, bool is_base_table = true)
       : Stats(nullptr),
+        table_name(table_name),
         num_rows(num_rows),
         col_stats_list_{},
         col_name_to_stats_map_{},
         is_base_table_(is_base_table),
         tuple_sampler_{} {}
 
-  TableStats(size_t num_rows,
+  TableStats(std::string table_name, size_t num_rows,
              std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
              bool is_base_table = true);
 
-  TableStats(std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
+  TableStats(std::string table_name, std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
              bool is_base_table = true);
 
   /*
@@ -103,7 +104,9 @@ class TableStats : public Stats {
 
   size_t GetColumnCount();
 
-  std::string ToCSV();
+  std::string ToCSV(bool verbose = false);
+
+  std::string table_name;
 
   size_t num_rows;
 

@@ -216,7 +216,7 @@ std::shared_ptr<ColumnStats> StatsStorage::ConvertVectorToColumnStats(
  * The return value is the shared_ptr of TableStats wrapper.
  */
 std::shared_ptr<TableStats> StatsStorage::GetTableStats(oid_t database_id,
-                                                        oid_t table_id) {
+                                                        oid_t table_id, std::string table_name) {
   auto column_stats_catalog = catalog::ColumnStatsCatalog::GetInstance(nullptr);
   auto &txn_manager = concurrency::TransactionManagerFactory::GetInstance();
   auto txn = txn_manager.BeginTransaction();
@@ -231,7 +231,7 @@ std::shared_ptr<TableStats> StatsStorage::GetTableStats(oid_t database_id,
         database_id, table_id, it->first, it->second));
   }
 
-  return std::shared_ptr<TableStats>(new TableStats(column_stats_ptrs));
+  return std::shared_ptr<TableStats>(new TableStats(table_name, column_stats_ptrs));
 }
 
 /**
@@ -242,7 +242,7 @@ std::shared_ptr<TableStats> StatsStorage::GetTableStats(oid_t database_id,
  * The return value is the shared_ptr of TableStats wrapper.
  */
 std::shared_ptr<TableStats> StatsStorage::GetTableStats(
-    oid_t database_id, oid_t table_id, std::vector<oid_t> column_ids) {
+    oid_t database_id, oid_t table_id, std::string table_name, std::vector<oid_t> column_ids) {
   auto column_stats_catalog = catalog::ColumnStatsCatalog::GetInstance(nullptr);
   auto &txn_manager = concurrency::TransactionManagerFactory::GetInstance();
   auto txn = txn_manager.BeginTransaction();
@@ -259,7 +259,7 @@ std::shared_ptr<TableStats> StatsStorage::GetTableStats(
     }
   }
 
-  return std::shared_ptr<TableStats>(new TableStats(column_stats_ptrs));
+  return std::shared_ptr<TableStats>(new TableStats(table_name, column_stats_ptrs));
 }
 
 /**

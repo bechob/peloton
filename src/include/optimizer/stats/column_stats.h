@@ -80,13 +80,17 @@ class ColumnStats {
     return res;
   }
 
-  std::string ToCSV() {
+  std::string ToCSV(bool verbose = false) {
     std::ostringstream os;
-    os << column_id << "|" << column_name << "|" << num_rows << "|" << has_index
-       << "|" << cardinality << "|" << frac_null << "|"
-       << VectorToString(most_common_vals) << "|"
-       << VectorToString(most_common_freqs) << "|"
-       << VectorToString(histogram_bounds) << "\n";
+    if (verbose) {
+      os << column_id << "|" << column_name << "|" << num_rows << "|" << has_index
+         << "|" << cardinality << "|" << frac_null << "|"
+         << VectorToString(most_common_vals) << "|"
+         << VectorToString(most_common_freqs) << "|"
+         << VectorToString(histogram_bounds) << "\n";
+    } else {
+      os << column_id << "|" << column_name << "|" << num_rows << "|" << cardinality << "\n";
+    }
     return os.str();
   }
 

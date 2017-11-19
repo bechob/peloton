@@ -62,9 +62,9 @@ class StatsStorage {
                                                   oid_t table_id,
                                                   oid_t column_id);
 
-  std::shared_ptr<TableStats> GetTableStats(oid_t database_id, oid_t table_id);
+  std::shared_ptr<TableStats> GetTableStats(oid_t database_id, oid_t table_id, std::string table_name);
 
-  std::shared_ptr<TableStats> GetTableStats(oid_t database_id, oid_t table_id,
+  std::shared_ptr<TableStats> GetTableStats(oid_t database_id, oid_t table_id, std::string table_name,
                                             std::vector<oid_t> column_ids);
 
   /* Functions for triggerring stats collection */

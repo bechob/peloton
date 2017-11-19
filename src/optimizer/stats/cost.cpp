@@ -419,6 +419,7 @@ void Cost::UpdateJoinOutputStats(
                     std::max(left_cardinality, right_cardinality)) +
           adjustment;
       }
+      LOG_INFO("%s", output_stats->ToCSV().c_str());
     }
   } else {
     // conjunction predicates

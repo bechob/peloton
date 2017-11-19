@@ -17,10 +17,11 @@
 namespace peloton {
 namespace optimizer {
 
-TableStats::TableStats(size_t num_rows,
+TableStats::TableStats(std::string table_name, size_t num_rows,
                        std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
                        bool is_base_table)
     : Stats(nullptr),
+      table_name(table_name),
       num_rows(num_rows),
       col_stats_list_(col_stats_ptrs),
       is_base_table_(is_base_table),
@@ -30,9 +31,10 @@ TableStats::TableStats(size_t num_rows,
   }
 }
 
-TableStats::TableStats(std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
+TableStats::TableStats(std::string table_name, std::vector<std::shared_ptr<ColumnStats>> col_stats_ptrs,
                        bool is_base_table)
     : Stats(nullptr),
+      table_name(table_name),
       col_stats_list_(col_stats_ptrs),
       is_base_table_(is_base_table),
       tuple_sampler_{} {
@@ -79,14 +81,24 @@ void TableStats::SampleTuples() {
   tuple_sampler_->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
 }
 
-std::string TableStats::ToCSV() {
+std::string TableStats::ToCSV(bool verbose) {
   std::ostringstream os;
-  os << "\n"
-     << "===[TableStats]===\n";
-  os << "column_id|column_name|num_rows|has_index|cardinality|"
-     << "frac_null|most_common_freqs|most_common_vals|histogram_bounds\n";
-  for (auto column_stats : col_stats_list_) {
-    os << column_stats->ToCSV();
+  if (verbose) {
+    os << "\n"
+       << "===[TableStats]===\n";
+    os << "column_id|column_name|num_rows|has_index|cardinality|"
+       << "frac_null|most_common_freqs|most_common_vals|histogram_bounds\n";
+    for (auto column_stats : col_stats_list_) {
+      os << column_stats->ToCSV();
+    }
+  } else {
+    os << "\n"
+       << "===[TableStats]===\n";
+    os << table_name << ":" << num_rows << "\n";
+    os << "column_id|column_name|num_rows|cardinality\n";
+    for (auto column_stats : col_stats_list_) {
+      os << column_stats->ToCSV(verbose);
+    }
   }
   return os.str();
 }

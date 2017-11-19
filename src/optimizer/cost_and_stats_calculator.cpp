@@ -67,7 +67,7 @@ std::shared_ptr<TableStats> generateOutputStat(
     }
   }
   auto output_table_stats = std::make_shared<TableStats>(
-      input_table_stats->num_rows, output_column_stats);
+      input_table_stats->table_name, input_table_stats->num_rows, output_column_stats);
 
   // Set sampler
   output_table_stats->SetTupleSampler(input_table_stats->GetSampler());
@@ -124,8 +124,9 @@ std::shared_ptr<TableStats> generateOutputStatFromTwoTable(
       }
     }
   }
+  std::string table_name = left_table_stats->table_name + " join " + right_table_stats->table_name;
   auto output_table_stats =
-      std::make_shared<TableStats>(output_column_stats, false);
+      std::make_shared<TableStats>(table_name, output_column_stats, false);
   return output_table_stats;
 }
 
@@ -242,7 +243,7 @@ void CostAndStatsCalculator::Visit(const PhysicalSeqScan *op) {
 
   auto stats_storage = StatsStorage::GetInstance();
   auto table_stats = stats_storage->GetTableStats(op->table_->GetDatabaseOid(),
-                                                  op->table_->GetOid());
+                                                  op->table_->GetOid(), op->table_->GetName());
   table_stats->SetTupleSampler(std::make_shared<TupleSampler>(op->table_));
 
   // No table stats available
@@ -283,7 +284,7 @@ void CostAndStatsCalculator::Visit(const PhysicalIndexScan *op) {
   auto stats_storage = StatsStorage::GetInstance();
   auto table_stats =
       std::dynamic_pointer_cast<TableStats>(stats_storage->GetTableStats(
-          op->table_->GetDatabaseOid(), op->table_->GetOid()));
+          op->table_->GetDatabaseOid(), op->table_->GetOid(), op->table_->GetName()));
   table_stats->SetTupleSampler(std::make_shared<TupleSampler>(op->table_));
 
   std::vector<oid_t> key_column_ids;

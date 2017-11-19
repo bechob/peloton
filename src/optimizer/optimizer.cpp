@@ -342,7 +342,7 @@ void Optimizer::OptimizeExpression(shared_ptr<GroupExpression> gexpr,
     group->SetExpressionCost(gexpr, gexpr->GetCost(output_properties),
                              output_properties);
 
-    if (output_properties >= requirements) {
+    if (!(requirements >= output_properties)) {
       DeriveCostAndStats(gexpr, requirements, input_properties_list,
                          best_child_stats, best_child_costs);
     }
