@@ -24,7 +24,7 @@ namespace optimizer {
 
 static constexpr int LEFT_CHILD_INDEX = 0;
 static constexpr int RIGHT_CHILD_INDEX = 1;
-static constexpr int JOIN_CHILD_NUM = 2;
+//static constexpr int JOIN_CHILD_NUM = 2;
 static constexpr int DEFAULT_HASH_JOIN_COST = 0;
 static constexpr int DEFAULT_NL_JOIN_COST = 1;
 //===----------------------------------------------------------------------===//
@@ -166,7 +166,6 @@ double updateMultipleConjuctionStats(
       }
     }
 
-    auto column_id = left_expr->GetColumnId();
     type::Value value;
     if (expr->GetChild(right_index)->GetExpressionType() ==
         ExpressionType::VALUE_CONSTANT) {
@@ -180,7 +179,7 @@ double updateMultipleConjuctionStats(
                       ->GetValueIdx())
                   .Copy();
     }
-    ValueCondition condition(column_id, expr_type, value);
+    ValueCondition condition(left_expr->GetTableName()+"."+left_expr->GetColumnName(), expr_type, value);
     if (enable_index) {
       return Cost::SingleConditionIndexScanCost(input_stats, condition,
                                                 output_stats);
@@ -449,7 +448,7 @@ void CostAndStatsCalculator::Visit(const PhysicalOuterHashJoin *op) {
 void CostAndStatsCalculator::JoinVisitHelper(
     std::shared_ptr<expression::AbstractExpression> predicate,
     JoinType join_type, bool is_hash_join) {
-  PL_ASSERT(child_stats_.size() == JOIN_CHILD_NUM);
+  PL_ASSERT(child_stats_.size() == 2);
 
   auto left_table_stats =
       std::dynamic_pointer_cast<TableStats>(child_stats_.at(LEFT_CHILD_INDEX));
@@ -466,9 +465,11 @@ void CostAndStatsCalculator::JoinVisitHelper(
       left_table_stats, right_table_stats, property_);
   output_cost_ += is_hash_join
                       ? Cost::HashJoinCost(left_table_stats, right_table_stats,
-                                           output_stats, predicate, join_type)
+                                           output_stats, predicate, join_type, true)
+//                                            output_stats, predicate, join_type)
                       : Cost::NLJoinCost(left_table_stats, right_table_stats,
-                                         output_stats, predicate, join_type);
+                                         output_stats, predicate, join_type, true);
+//                                          output_stats, predicate, join_type);
 
   output_stats_ = output_stats;
 }
