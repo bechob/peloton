@@ -137,6 +137,8 @@ TestingSQLUtil::GeneratePlanWithOptimizer(
   auto parsed_stmt = peloton_parser.BuildParseTree(query);
   auto return_value =
       optimizer->BuildPelotonPlanTree(parsed_stmt, DEFAULT_DB_NAME, txn);
+  LOG_INFO("Plan Sampling Size %lu", return_value->GetSampleSize());
+  LOG_INFO("Plan Sampling Time %f ms", return_value->GetSampleTime());
   return return_value;
 }
 

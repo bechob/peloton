@@ -15,6 +15,7 @@
 #include "expression/tuple_value_expression.h"
 #include "optimizer/stats/selectivity.h"
 #include "type/value.h"
+#include "common/timer.h"
 
 #include <cmath>
 
@@ -275,6 +276,9 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
     const std::shared_ptr<TableStats> &right_input_stats,
     std::shared_ptr<TableStats> &output_stats,
     const std::string &left_column_name, const std::string &right_column_name, bool &enable_sampling) {
+
+  Timer<std::ratio<1, 1000>> timer;
+  timer.Start();
   std::vector<oid_t> column_ids;
   auto sample_stats = left_input_stats, index_stats = right_input_stats;
   auto sample_column = left_column_name, index_column = right_column_name;
@@ -329,12 +333,15 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
     matched_tuples.push_back(fetched_tuples);
     cnt += fetched_tuples.size();
   }
-  LOG_INFO("sample number %d", cnt);
-
+//  LOG_INFO("sample number %d", cnt);
+  timer.Stop();
+  index_stats->index_lookup_time = sample_stats->index_lookup_time + timer.GetDuration();
   if (cnt == 0) {
     enable_sampling = false;
     return column_ids;
   }
+  index_stats->GetSampler()->AddSampleTime(sample_stats->GetSampler()->GetSampleTime());
+  index_stats->GetSampler()->AddSampleSize(sample_stats->GetSampler()->GetSampleSize());
 
   index_stats->GetSampler()->AcquireSampleTuplesForIndexJoin(
       sample_tuples, matched_tuples, cnt);
@@ -432,7 +439,7 @@ void Cost::UpdateJoinOutputStats(
       }
 
     }
-    LOG_INFO("%s", output_stats->ToCSV().c_str());
+//    LOG_INFO("%s", output_stats->ToCSV().c_str());
   } else {
     // conjunction predicates
     output_stats->num_rows = default_join_size;

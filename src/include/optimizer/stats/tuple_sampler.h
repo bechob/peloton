@@ -48,6 +48,11 @@ class TupleSampler {
       std::vector<std::unique_ptr<storage::Tuple>> &sample_tuples,
       std::vector<std::vector<ItemPointer *>> &matched_tuples, size_t count);
 
+  void AddSampleTime(double time) { sample_time += time; }
+  double GetSampleTime() { return sample_time; }
+  void AddSampleSize(size_t size) { sample_size += size; }
+  size_t GetSampleSize() { return sample_size; }
+
  private:
   void AddJoinTuple(std::unique_ptr<storage::Tuple> &left_tuple,
                     std::unique_ptr<storage::Tuple> &right_tuple);
@@ -59,6 +64,9 @@ class TupleSampler {
   std::vector<std::unique_ptr<storage::Tuple>> sampled_tuples;
 
   std::shared_ptr<catalog::Schema> join_schema;
+
+  double sample_time = 0;
+  size_t sample_size = 0;
 };
 
 }  // namespace optimizer

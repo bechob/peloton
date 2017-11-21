@@ -110,6 +110,8 @@ class TableStats : public Stats {
 
   size_t num_rows;
 
+  double index_lookup_time = 0;
+
  private:
   // TODO: only keep one ptr of ColumnStats
   std::vector<std::shared_ptr<ColumnStats>> col_stats_list_;

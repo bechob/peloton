@@ -89,6 +89,17 @@ class AbstractPlan : public Printable {
   // Set the estimated cost of this plan
   void SetCost(double cost) { estimated_cost_ = cost; }
 
+
+  double GetSampleTime() const { return sample_time; }
+
+  void SetSampleTime(double time) { sample_time = time; }
+
+  size_t GetSampleSize() const { return sample_size; }
+
+  void SetSampleSize(size_t size) { sample_size = size; }
+
+
+
   //===--------------------------------------------------------------------===//
   // Utilities
   //===--------------------------------------------------------------------===//
@@ -143,6 +154,12 @@ class AbstractPlan : public Printable {
   int estimated_cardinality_ = 500000;
 
   double estimated_cost_ = 0;
+
+  double sample_time = 0;
+
+  size_t sample_size = 0;
+
+
 
  private:
   DISALLOW_COPY_AND_MOVE(AbstractPlan);

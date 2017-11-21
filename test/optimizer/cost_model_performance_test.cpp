@@ -142,8 +142,8 @@ namespace test {
 
       Timer<std::ratio<1, 1000>> timer;
       timer.Start();
-      auto plan =
-        TestingSQLUtil::GeneratePlanWithOptimizer(optimizer, query, txn);
+//      auto plan =
+      TestingSQLUtil::GeneratePlanWithOptimizer(optimizer, query, txn);
       timer.Stop();
       double gen_time = timer.GetDuration();
 
@@ -177,8 +177,8 @@ namespace test {
     }
 
     void RunJoinQueries() {
-      for (int i = 2; i <= 5; i++) {
-      for (int j = 1; j <= 5-i+1; j++) {
+      for (int i = 2; i <= 7; i++) {
+      for (int j = 1; j <= 7-i+1; j++) {
 //        for (int j = 1; j < 2; j++) {
 //        for (int k = 0; k < 10; k++) { // run each query 10 times
           switch (i) {
@@ -217,10 +217,37 @@ namespace test {
                        table4 + ".b join " + table5 + " on " + table4 + ".b = " + table5 + ".b;");
               break;
             }
+            case 6: {
+              std::string table1 = "test" + std::to_string(j);
+              std::string table2 = "test" + std::to_string(j + 1);
+              std::string table3 = "test" + std::to_string(j + 2);
+              std::string table4 = "test" + std::to_string(j + 3);
+              std::string table5 = "test" + std::to_string(j + 4);
+              std::string table6 = "test" + std::to_string(j + 5);
+              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
+                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
+                       table4 + ".b join " + table5 + " on " + table4 + ".b = " + table5 + ".b join " + table6
+                       + " on " + table5 + ".b = " + table6 +".b;");
+              break;
+            }
+            case 7: {
+              std::string table1 = "test" + std::to_string(j);
+              std::string table2 = "test" + std::to_string(j + 1);
+              std::string table3 = "test" + std::to_string(j + 2);
+              std::string table4 = "test" + std::to_string(j + 3);
+              std::string table5 = "test" + std::to_string(j + 4);
+              std::string table6 = "test" + std::to_string(j + 5);
+              std::string table7 = "test" + std::to_string(j + 6);
+              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
+                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
+                       table4 + ".b join " + table5 + " on " + table4 + ".b = " + table5 + ".b join " + table6
+                       + " on " + table5 + ".b = " + table6 + ".b join " + table7 + " on " + table6+ ".b = " + table7 +".b;");
+              break;
+            }
             default:
               break;
-//          }
           }
+//          }
         }
         LOG_INFO("Join %d tables summary:", i);
         ShowStats();
@@ -248,13 +275,13 @@ namespace test {
 
 //    CreateAndLoadTable("test1", DisType::EXPO);
 
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= 7; i++) {
       CreateAndLoadTable("test" + std::to_string(i));
     }
 
 //  RunJoinQueries();
     LOG_INFO("************START ANALYZE***********");
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= 7; i++) {
       TestingSQLUtil::ExecuteSQLQuery("ANALYZE test" + std::to_string(i));
     }
     LOG_INFO("************FINISH ANALYZE**********");
