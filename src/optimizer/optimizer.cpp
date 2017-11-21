@@ -248,7 +248,7 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
   shared_ptr<GroupExpression> gexpr = group->GetBestExpression(requirements);
   double estimated_cost = group->GetBestExpressionCost(requirements);
 
-  LOG_INFO("Choosing best plan for group %d with op %s", gexpr->GetGroupID(),
+  LOG_TRACE("Choosing best plan for group %d with op %s", gexpr->GetGroupID(),
             gexpr->Op().name().c_str());
 
   vector<GroupID> child_groups = gexpr->GetChildGroupIDs();
@@ -277,9 +277,9 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
   auto plan = OptimizerPlanToPlannerPlan(op, requirements, required_input_props,
                                          children_plans, children_expr_map,
                                          output_expr_map);
-  auto stats = gexpr->GetStats(requirements);
+  auto stats = std::dynamic_pointer_cast<TableStats>(gexpr->GetStats(requirements));
   if (stats != nullptr) {
-    plan->SetCardinality((int) std::dynamic_pointer_cast<TableStats>(stats)->num_rows);
+    plan->SetCardinality((int) stats->num_rows);
   }
   plan->SetCost(estimated_cost);
 

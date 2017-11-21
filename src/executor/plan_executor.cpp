@@ -60,7 +60,6 @@ void PlanExecutor::ExecutePlan(
         BuildExecutorTree(nullptr, plan.get(), executor_context.get()));
 
     status = executor_tree->Init();
-    LOG_INFO("executor init");
     if (status != true) {
       p_status.m_result = ResultType::FAILURE;
       p_status.m_result_slots = nullptr;
@@ -76,7 +75,7 @@ void PlanExecutor::ExecutePlan(
 
       // Some executors don't return logical tiles (e.g., Update).
       if (tile.get() != nullptr) {
-        LOG_INFO("Final Answer: %s", tile->GetInfo().c_str());
+        LOG_TRACE("Final Answer: %s", tile->GetInfo().c_str());
         std::vector<std::vector<std::string>> tuples;
         tuples = tile->GetAllValuesAsStrings(result_format, false);
 
@@ -95,7 +94,10 @@ void PlanExecutor::ExecutePlan(
     p_status.m_processed = executor_context->num_processed;
     p_status.m_result = ResultType::SUCCESS;
     p_status.m_result_slots = nullptr;
-    LOG_INFO("Plan %s tuple processed %lu", plan->GetInfo().c_str(), result.size());
+    if (plan->GetPlanNodeType() != PlanNodeType::INSERT) {
+      LOG_INFO("Plan %s result size %lu estimated size %d", plan->GetInfo().c_str(), result.size(),
+               plan->GetCardinality());
+    }
     CleanExecutorTree(executor_tree.get());
     return;
   }
@@ -131,7 +133,10 @@ void PlanExecutor::ExecutePlan(
   p_status.m_processed = executor_context->num_processed;
   p_status.m_result = ResultType::SUCCESS;
   p_status.m_result_slots = nullptr;
-  LOG_INFO("Plan %s tuple processed %lu estimated size %d", plan->GetInfo().c_str(), results.size(), plan->GetCardinality());
+  if (plan->GetPlanNodeType() != PlanNodeType::INSERT) {
+    LOG_INFO("Plan %s tuple processed %lu estimated size %d", plan->GetInfo().c_str(), results.size(),
+             plan->GetCardinality());
+  }
   return;
 }
 

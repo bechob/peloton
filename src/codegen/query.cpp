@@ -101,8 +101,10 @@ void Query::Execute(concurrency::Transaction &txn,
   if (stats != nullptr) {
     stats->plan_ms = timer.GetDuration();
   }
-  LOG_INFO("Running query %s plan() time %f estimate cost %f", GetPlan().GetInfo().c_str(), timer.GetDuration(),
-                GetPlan().GetCost());
+  if (GetPlan().GetPlanNodeType() != PlanNodeType::INSERT) {
+    LOG_INFO("Running query %s plan() time %f estimate cost %f", GetPlan().GetInfo().c_str(), timer.GetDuration(),
+             GetPlan().GetCost());
+  }
 
   timer.Reset();
   timer.Start();
