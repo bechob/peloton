@@ -280,8 +280,12 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
   auto stats = std::dynamic_pointer_cast<TableStats>(gexpr->GetStats(requirements));
   if (stats != nullptr) {
     plan->SetCardinality((int) stats->num_rows);
-    plan->SetSampleSize(stats->GetSampler()->GetSampleSize());
-    plan->SetSampleTime(stats->GetSampler()->GetSampleTime());
+    if (stats->GetSampler() != nullptr) {
+      plan->SetSampleSize(stats->GetSampler()->GetSampleSize());
+      plan->SetSampleTime(stats->GetSampler()->GetSampleTime());
+    } else {
+      LOG_INFO("Sample not availble for the final plan");
+    }
     LOG_INFO("Plan Sampling Index Lookup Time %f ms", stats->index_lookup_time);
   }
   plan->SetCost(estimated_cost);
