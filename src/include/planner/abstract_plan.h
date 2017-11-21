@@ -92,7 +92,7 @@ class AbstractPlan : public Printable {
 
   double GetSampleTime() const { return sample_time; }
 
-  void SetSampleTime(double time) { sample_time = time; }
+  void AddSampleTime(double time) { sample_time += time; }
 
   size_t GetSampleSize() const { return sample_size; }
 

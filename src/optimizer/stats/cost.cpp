@@ -93,8 +93,7 @@ double Cost::SortGroupByCost(const std::shared_ptr<TableStats> &input_stats,
   PL_ASSERT(input_stats);
   PL_ASSERT(columns.size() > 0);
 
-  //    if (output_stats != nullptr) {
-  if (false) {
+  if (output_stats != nullptr) {
     output_stats->num_rows = GetEstimatedGroupByRows(input_stats, columns);
   }
 
@@ -302,6 +301,7 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
   // Already have tuple sampled, copy the sampled tuples
   if (!index_stats->GetSampler()->GetSampledTuples().empty()) {
     output_stats->SetTupleSampler(index_stats->GetSampler());
+    output_stats->GetSampler()->ClearSampleTime();
     return column_ids;
   }
 
@@ -340,11 +340,12 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
     enable_sampling = false;
     return column_ids;
   }
+  index_stats->GetSampler()->AcquireSampleTuplesForIndexJoin(
+        sample_tuples, matched_tuples, cnt);
   index_stats->GetSampler()->AddSampleTime(sample_stats->GetSampler()->GetSampleTime());
   index_stats->GetSampler()->AddSampleSize(sample_stats->GetSampler()->GetSampleSize());
 
-  index_stats->GetSampler()->AcquireSampleTuplesForIndexJoin(
-      sample_tuples, matched_tuples, cnt);
+
   output_stats->SetTupleSampler(index_stats->GetSampler());
   output_stats->num_rows = (size_t) (sample_stats->num_rows * cnt / (double) sample_tuples.size());
 

@@ -20,6 +20,7 @@
 #include "parser/postgresparser.h"
 #include "planner/plan_util.h"
 #include "gmock/gtest/gtest.h"
+#include "common/timer.h"
 #include "traffic_cop/traffic_cop.h"
 
 namespace peloton {
@@ -135,8 +136,12 @@ TestingSQLUtil::GeneratePlanWithOptimizer(
   auto &peloton_parser = parser::PostgresParser::GetInstance();
 
   auto parsed_stmt = peloton_parser.BuildParseTree(query);
+  Timer<std::ratio<1, 1000>> timer;
+  timer.Start();
   auto return_value =
       optimizer->BuildPelotonPlanTree(parsed_stmt, DEFAULT_DB_NAME, txn);
+  timer.Stop();
+  LOG_INFO("Plan generation time %f", timer.GetDuration());
   LOG_INFO("Plan Sampling Size %lu", return_value->GetSampleSize());
   LOG_INFO("Plan Sampling Time %f ms", return_value->GetSampleTime());
   return return_value;

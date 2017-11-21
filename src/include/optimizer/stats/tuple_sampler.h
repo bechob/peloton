@@ -49,6 +49,7 @@ class TupleSampler {
       std::vector<std::vector<ItemPointer *>> &matched_tuples, size_t count);
 
   void AddSampleTime(double time) { sample_time += time; }
+  void ClearSampleTime() { sample_time = 0; }
   double GetSampleTime() { return sample_time; }
   void AddSampleSize(size_t size) { sample_size += size; }
   size_t GetSampleSize() { return sample_size; }

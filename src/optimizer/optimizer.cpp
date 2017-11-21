@@ -282,7 +282,8 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
     plan->SetCardinality((int) stats->num_rows);
     if (stats->GetSampler() != nullptr) {
       plan->SetSampleSize(stats->GetSampler()->GetSampleSize());
-      plan->SetSampleTime(stats->GetSampler()->GetSampleTime());
+      plan->AddSampleTime(stats->GetSampler()->GetSampleTime());
+//      LOG_INFO("Plan Sampling Time %f ms", stats->GetSampler()->GetSampleTime());
     } else {
       LOG_INFO("Sample not availble for the final plan");
     }
