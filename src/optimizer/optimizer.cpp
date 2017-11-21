@@ -283,11 +283,11 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
     if (stats->GetSampler() != nullptr) {
       plan->SetSampleSize(stats->GetSampler()->GetSampleSize());
       plan->AddSampleTime(stats->GetSampler()->GetSampleTime());
-//      LOG_INFO("Plan Sampling Time %f ms", stats->GetSampler()->GetSampleTime());
+      LOG_INFO("Plan Sampling Time %f ms", stats->GetSampler()->GetSampleTime());
     } else {
       LOG_INFO("Sample not availble for the final plan");
     }
-    LOG_INFO("Plan Sampling Index Lookup Time %f ms", stats->index_lookup_time);
+//    LOG_INFO("Plan Sampling Index Lookup Time %f ms", stats->index_lookup_time);
   }
   plan->SetCost(estimated_cost);
 

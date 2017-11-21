@@ -301,7 +301,6 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
   // Already have tuple sampled, copy the sampled tuples
   if (!index_stats->GetSampler()->GetSampledTuples().empty()) {
     output_stats->SetTupleSampler(index_stats->GetSampler());
-    output_stats->GetSampler()->ClearSampleTime();
     return column_ids;
   }
 
@@ -341,7 +340,7 @@ std::vector<oid_t> Cost::GenerateJoinSamples(
     return column_ids;
   }
   index_stats->GetSampler()->AcquireSampleTuplesForIndexJoin(
-        sample_tuples, matched_tuples, cnt);
+    sample_tuples, matched_tuples, cnt);
   index_stats->GetSampler()->AddSampleTime(sample_stats->GetSampler()->GetSampleTime());
   index_stats->GetSampler()->AddSampleSize(sample_stats->GetSampler()->GetSampleSize());
 
