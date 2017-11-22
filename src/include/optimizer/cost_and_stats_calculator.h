@@ -60,13 +60,10 @@ class CostAndStatsCalculator : public OperatorVisitor {
   void Visit(const PhysicalAggregate *) override;
 
  private:
-<<<<<<< 416b6d0f19234d9ea538cdb9d68a2a677dda34d3
-=======
+
   void JoinVisitHelper(std::shared_ptr<expression::AbstractExpression> predicate,
   JoinType join_type, bool is_hash_join);
-  ColumnManager &manager_;
 
->>>>>>> refacter join visit and cost functions
   // We cannot use reference here because otherwise we have to initialize them
   // when constructing the class
   std::shared_ptr<GroupExpression> gexpr_;
