@@ -23,6 +23,7 @@
 #include "benchmark/tpch/tpch_workload.h"
 #include "catalog/catalog.h"
 #include "storage/table_factory.h"
+#include "catalog/constraint.h"
 
 namespace peloton {
 namespace benchmark {
@@ -295,12 +296,16 @@ void TPCHDatabase::CreateLineitemTable() const {
 void TPCHDatabase::CreateNationTable() const {
   catalog::Column n_nationkey = {type::TypeId::INTEGER, kIntSize,
                                  "n_nationkey", true};
+
   catalog::Column n_name = {type::TypeId::VARCHAR, 25, "n_name", false};
   catalog::Column n_regionKey = {type::TypeId::INTEGER, kIntSize, "n_regionkey",
                                  true};
 
   catalog::Column n_comment = {type::TypeId::VARCHAR, 152, "n_comment",
                                false};
+
+  catalog::Constraint constraint(ConstraintType::UNIQUE, "n_nationkey_unique");
+  n_nationkey.AddConstraint(constraint);
 
   // Create the schema
   auto nation_cols = {n_nationkey, n_name, n_regionKey, n_comment};
@@ -669,7 +674,9 @@ void TPCHDatabase::LoadSupplierTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Supplier finished: %.2f ms (%lu tuples)\n",
+
+  LOG_INFO("Loading Supplier finished: %.2f ms (%llu tuples)\n",
+           timer.GetDuration(), num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Supplier);
@@ -734,7 +741,7 @@ void TPCHDatabase::LoadPartSupplierTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading PartSupp finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading PartSupp finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -896,8 +903,9 @@ void TPCHDatabase::LoadNationTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Nation finished: %.2f ms (%lu tuples)\n",
 
+  LOG_INFO("Loading Nation finished: %.2f ms (%llu tuples)\n",
+           timer.GetDuration(), num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Nation);
@@ -1078,7 +1086,7 @@ void TPCHDatabase::LoadRegionTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Region finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Region finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
@@ -1163,7 +1171,7 @@ void TPCHDatabase::LoadOrdersTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Orders finished: %.2f ms (%lu tuples)\n",
+  LOG_INFO("Loading Orders finished: %.2f ms (%llu tuples)\n",
            timer.GetDuration(), num_tuples);
 
   // Set table as loaded
