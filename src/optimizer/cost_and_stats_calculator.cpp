@@ -458,6 +458,8 @@ void CostAndStatsCalculator::JoinVisitHelper(
     output_cost_ = is_hash_join ? DEFAULT_HASH_JOIN_COST : DEFAULT_NL_JOIN_COST;
     return;
   }
+  LOG_INFO("Join %s and %s with predicate %s", left_table_stats->table_name.c_str(), right_table_stats->table_name.c_str(),
+                predicate == nullptr?"NULL":predicate->GetInfo().c_str());
   output_cost_ = getCostOfChildren(child_costs_);
   auto property_ = output_properties_->GetPropertyOfType(PropertyType::COLUMNS)
                        ->As<PropertyColumns>();
@@ -465,11 +467,11 @@ void CostAndStatsCalculator::JoinVisitHelper(
       left_table_stats, right_table_stats, property_);
   output_cost_ += is_hash_join
                       ? Cost::HashJoinCost(left_table_stats, right_table_stats,
-                                           output_stats, predicate, join_type, true)
-//                                            output_stats, predicate, join_type)
+//                                           output_stats, predicate, join_type, true)
+                                            output_stats, predicate, join_type)
                       : Cost::NLJoinCost(left_table_stats, right_table_stats,
-                                         output_stats, predicate, join_type, true);
-//                                          output_stats, predicate, join_type);
+//                                         output_stats, predicate, join_type, true);
+                                          output_stats, predicate, join_type);
 
   output_stats_ = output_stats;
 }

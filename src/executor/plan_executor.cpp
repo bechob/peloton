@@ -22,6 +22,7 @@
 #include "executor/executors.h"
 #include "storage/tuple_iterator.h"
 #include "settings/settings_manager.h"
+#include "common/timer.h"
 
 namespace peloton {
 namespace executor {
@@ -53,8 +54,9 @@ void PlanExecutor::ExecutePlan(
   std::unique_ptr<executor::ExecutorContext> executor_context(
       new executor::ExecutorContext(txn, params));
 
-  if (!settings::SettingsManager::GetBool(settings::SettingId::codegen)
-      || !codegen::QueryCompiler::IsSupported(*plan)) {
+//  if (!settings::SettingsManager::GetBool(settings::SettingId::codegen)
+//      || !codegen::QueryCompiler::IsSupported(*plan))
+ if (true) {
     bool status;
     std::unique_ptr<executor::AbstractExecutor> executor_tree(
         BuildExecutorTree(nullptr, plan.get(), executor_context.get()));
@@ -66,7 +68,8 @@ void PlanExecutor::ExecutePlan(
       CleanExecutorTree(executor_tree.get());
       return;
     }
-
+     Timer<std::ratio<1, 1000>> timer;
+     timer.Start();
     // Execute the tree until we get result tiles from root node
     while (status == true) {
       status = executor_tree->Execute();
@@ -91,12 +94,13 @@ void PlanExecutor::ExecutePlan(
         }
       }
     }
+    timer.Stop();
     p_status.m_processed = executor_context->num_processed;
     p_status.m_result = ResultType::SUCCESS;
     p_status.m_result_slots = nullptr;
     if (plan->GetPlanNodeType() != PlanNodeType::INSERT) {
-      LOG_INFO("Plan %s result size %lu estimated size %d", plan->GetInfo().c_str(), result.size(),
-               plan->GetCardinality());
+      LOG_INFO("Plan %s result size %lu estimated size %d using time %f estimated cost %f", plan->GetInfo().c_str(), result.size(),
+               plan->GetCardinality(), timer.GetDuration(), plan->GetCost());
     }
     CleanExecutorTree(executor_tree.get());
     return;

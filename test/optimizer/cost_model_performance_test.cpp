@@ -80,7 +80,7 @@ namespace test {
     }
 
     void CreateAndLoadTable(UNUSED_ATTRIBUTE std::string table_name, DisType dis_type = DisType::Uniform) {
-      const int tuple_count = 10000;
+      const int tuple_count = 1000;
 //    const int tuple_per_tilegroup = 100;
       std::srand(std::time(nullptr));
       std::random_device rd;
@@ -143,7 +143,7 @@ namespace test {
       Timer<std::ratio<1, 1000>> timer;
       timer.Start();
 //      auto plan =
-      TestingSQLUtil::GeneratePlanWithOptimizer(optimizer, query, txn);
+//      TestingSQLUtil::GeneratePlanWithOptimizer(optimizer, query, txn);
       timer.Stop();
       double gen_time = timer.GetDuration();
 
@@ -155,7 +155,7 @@ namespace test {
 //    LOG_INFO("Before Exec with Opt");
       timer.Reset();
       // Check plan execution results are correct
-//      TestingSQLUtil::ExecuteSQLQuery(query, result, tuple_descriptor, rows_changed, error_message);
+      TestingSQLUtil::ExecuteSQLQuery(query, result, tuple_descriptor, rows_changed, error_message);
 
       timer.Stop();
       double run_time = timer.GetDuration();
@@ -177,23 +177,32 @@ namespace test {
     }
 
     void RunJoinQueries() {
-      for (int i = 2; i <= 7; i++) {
-      for (int j = 1; j <= 7-i+1; j++) {
+      for (int i = 3; i <= 3; i++) {
+      for (int j = 1; j <= 1; j++) {
 //        for (int j = 1; j < 2; j++) {
 //        for (int k = 0; k < 10; k++) { // run each query 10 times
           switch (i) {
             case 2: {
               std::string table1 = "test" + std::to_string(j);
               std::string table2 = "test" + std::to_string(j + 1);
-              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b;");
+              TestUtil("select * from test1, test2 where test1.b = test2.b;");
+              TestUtil("select * from test2, test3 where test2.b = test3.b;");
+//              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b;");
               break;
             }
             case 3: {
               std::string table1 = "test" + std::to_string(j);
               std::string table2 = "test" + std::to_string(j + 1);
               std::string table3 = "test" + std::to_string(j + 2);
-              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
-                       table3 + " on " + table2 + ".b = " + table3 + ".b;");
+//              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
+//                       table3 + " on " + table2 + ".b = " + table3 + ".b;");
+//              TestUtil("select * from test1, test2, test3 where test1.b = test2.b and test2.b = test3.b;");
+//              TestUtil("select * from test1, test3, test2 where test1.b = test2.b and test1.b = test3.b;");
+//              TestUtil("select * from test2, test3, test1 where test1.b = test2.b and test2.b = test3.b;");
+//              TestUtil("select * from test2, test1, test3 where test1.b = test2.b and test2.b = test3.b;");
+//              TestUtil("select * from test3, test2, test1 where test1.b = test2.b and test2.b = test3.b;");
+              TestUtil("select * from test3, test1, test2 where test1.b = test2.b and test1.b = test3.b;");
+              TestUtil("select * from test3, test1, test2 where test1.b = test2.b and test2.b = test3.b;");
               break;
             }
             case 4: {
@@ -201,9 +210,10 @@ namespace test {
               std::string table2 = "test" + std::to_string(j + 1);
               std::string table3 = "test" + std::to_string(j + 2);
               std::string table4 = "test" + std::to_string(j + 3);
-              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
-                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
-                       table4 + ".b;");
+//              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
+//                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
+//                       table4 + ".b;");
+//              TestUtil("select * from test1, test2, test3, test4 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
               break;
             }
             case 5: {
@@ -273,15 +283,15 @@ namespace test {
 
   TEST_F(CostModelPerformanceTests, JoinCostTest) {
 
-//    CreateAndLoadTable("test1", DisType::EXPO);
+    CreateAndLoadTable("test1", DisType::Uniform);
 
-    for (int i = 1; i <= 7; i++) {
-      CreateAndLoadTable("test" + std::to_string(i));
+    for (int i = 2; i <= 3; i++) {
+      CreateAndLoadTable("test" + std::to_string(i), DisType::EXPO);
     }
 
 //  RunJoinQueries();
     LOG_INFO("************START ANALYZE***********");
-    for (int i = 1; i <= 7; i++) {
+    for (int i = 1; i <= 3; i++) {
       TestingSQLUtil::ExecuteSQLQuery("ANALYZE test" + std::to_string(i));
     }
     LOG_INFO("************FINISH ANALYZE**********");
