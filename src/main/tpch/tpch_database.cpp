@@ -886,7 +886,9 @@ void TPCHDatabase::LoadNationTable() {
     tuple.SetValue(3, type::ValueFactory::GetVarcharValue(std::string{p, p_end}), pool.get());
 
     // Insert into table
-    ItemPointer tuple_slot_id = table.InsertTuple(&tuple);
+    ItemPointer *index_entry_ptr = nullptr;
+    ItemPointer tuple_slot_id = table.InsertTuple(&tuple, txn, &index_entry_ptr);
+
     PL_ASSERT(tuple_slot_id.block != INVALID_OID);
     PL_ASSERT(tuple_slot_id.offset != INVALID_OID);
     txn_manager.PerformInsert(txn, tuple_slot_id);
