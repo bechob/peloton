@@ -80,7 +80,7 @@ namespace test {
     }
 
     void CreateAndLoadTable(UNUSED_ATTRIBUTE std::string table_name, DisType dis_type = DisType::Uniform) {
-      const int tuple_count = 1000;
+      const int tuple_count = 100;
 //    const int tuple_per_tilegroup = 100;
       std::srand(std::time(nullptr));
       std::random_device rd;
@@ -177,7 +177,7 @@ namespace test {
     }
 
     void RunJoinQueries() {
-      for (int i = 3; i <= 3; i++) {
+      for (int i = 4; i <= 4; i++) {
       for (int j = 1; j <= 1; j++) {
 //        for (int j = 1; j < 2; j++) {
 //        for (int k = 0; k < 10; k++) { // run each query 10 times
@@ -213,7 +213,12 @@ namespace test {
 //              TestUtil("select * from " + table1 + " join " + table2 + " on " + table1 + ".b = " + table2 + ".b join " +
 //                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
 //                       table4 + ".b;");
-//              TestUtil("select * from test1, test2, test3, test4 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test1, test2, test3, test4 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
+
+              TestUtil("select * from test1, test3, test2, test4 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test1, test3, test4, test2 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test3, test4, test1, test2 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
+
               break;
             }
             case 5: {
@@ -283,15 +288,17 @@ namespace test {
 
   TEST_F(CostModelPerformanceTests, JoinCostTest) {
 
-    CreateAndLoadTable("test1", DisType::Uniform);
 
-    for (int i = 2; i <= 3; i++) {
-      CreateAndLoadTable("test" + std::to_string(i), DisType::EXPO);
+    CreateAndLoadTable("test1", DisType::EXPO);
+    CreateAndLoadTable("test2", DisType::EXPO);
+
+    for (int i = 3; i <= 4; i++) {
+      CreateAndLoadTable("test" + std::to_string(i), DisType::Uniform);
     }
 
 //  RunJoinQueries();
     LOG_INFO("************START ANALYZE***********");
-    for (int i = 1; i <= 3; i++) {
+    for (int i = 1; i <= 4; i++) {
       TestingSQLUtil::ExecuteSQLQuery("ANALYZE test" + std::to_string(i));
     }
     LOG_INFO("************FINISH ANALYZE**********");
