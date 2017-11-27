@@ -183,6 +183,22 @@ void TupleSampler::AddJoinTuple(std::unique_ptr<storage::Tuple> &left_tuple,
   sampled_tuples.push_back(std::move(tuple));
 }
 
+double TupleSampler::FilterSamples(const expression::AbstractExpression *predicate) {
+  if (predicate == nullptr) {
+    return 1.0;
+  }
+  size_t size = sampled_tuples.size();
+  for (auto it = sampled_tuples.begin() ; it != sampled_tuples.end();) {
+    LOG_INFO("%s", (*it)->GetInfo().c_str());
+    if (predicate->Evaluate((*it).get(), nullptr, nullptr).IsFalse()) {
+      it = sampled_tuples.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  return sampled_tuples.size()/(double) size;
+}
+
 /**
  * GetSampledTuples - This function returns the sampled tuples.
  */

@@ -125,11 +125,27 @@ std::shared_ptr<TableStats> generateOutputStatFromTwoTable(
   return output_table_stats;
 }
 
+void bindPredicate(expression::AbstractExpression *predicate, const std::shared_ptr<TableStats> &stats) {
+  for (size_t i = 0; i < predicate->GetChildrenSize(); i++) {
+    bindPredicate(predicate->GetModifiableChild(i), stats);
+  }
+  if (predicate->GetExpressionType() == ExpressionType::VALUE_TUPLE) {
+    auto tv_expr = dynamic_cast<expression::TupleValueExpression *>(predicate);
+    tv_expr->SetValueIdx(stats->GetColumnStats(getColumnName(predicate))->column_id, 0);
+  }
+}
+
 // Update output stats num_rows for conjunctions based on predicate
 double updateMultipleConjuctionStats(
     const std::shared_ptr<TableStats> &input_stats,
     const expression::AbstractExpression *expr,
     std::shared_ptr<TableStats> &output_stats, bool enable_index) {
+  if (input_stats->GetSampler() != nullptr) {
+    input_stats->GetSampler()->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
+    auto predicate = expr->Copy();
+    bindPredicate(predicate, input_stats);
+    LOG_INFO("selectivity %f", input_stats->GetSampler()->FilterSamples(predicate));
+  }
   if (expr->GetChild(LEFT_CHILD_INDEX)->GetExpressionType() ==
       ExpressionType::VALUE_TUPLE ||
       expr->GetChild(RIGHT_CHILD_INDEX)->GetExpressionType() ==
@@ -254,8 +270,8 @@ void CostAndStatsCalculator::Visit(const PhysicalSeqScan *op) {
       output_properties_->GetPropertyOfType(PropertyType::COLUMNS)
           ->As<PropertyColumns>();
   auto output_stats = generateOutputStat(table_stats, columns_prop, op->table_);
-  auto predicate_prop = op->predicate;
-  if (predicate_prop == nullptr) {
+  auto predicate = op->predicate;
+  if (predicate == nullptr) {
     output_cost_ += Cost::NoConditionSeqScanCost(table_stats);
     output_stats_ = output_stats;
     return;

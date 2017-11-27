@@ -48,6 +48,8 @@ class TupleSampler {
       std::vector<std::unique_ptr<storage::Tuple>> &sample_tuples,
       std::vector<std::vector<ItemPointer *>> &matched_tuples, size_t count);
 
+  double FilterSamples(const expression::AbstractExpression *predicate);
+
  private:
   void AddJoinTuple(std::unique_ptr<storage::Tuple> &left_tuple,
                     std::unique_ptr<storage::Tuple> &right_tuple);
