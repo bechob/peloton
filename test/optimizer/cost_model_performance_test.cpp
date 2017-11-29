@@ -80,14 +80,15 @@ namespace test {
     }
 
     void CreateAndLoadTable(UNUSED_ATTRIBUTE std::string table_name, DisType dis_type = DisType::Uniform) {
-      const int tuple_count = 100;
+      const int tuple_count = 10000;
 //    const int tuple_per_tilegroup = 100;
       std::srand(std::time(nullptr));
       std::random_device rd;
       std::mt19937 gen(rd());
-      std::uniform_int_distribution<> ud(1, tuple_count/3);
+//      std::uniform_int_distribution<> ud(1, tuple_count/3);
+      std::uniform_int_distribution<> ud(1, tuple_count/2);
       std::normal_distribution<> nd(tuple_count/2, tuple_count/4);
-      std::exponential_distribution<> ed(1);
+      std::exponential_distribution<> ed(4);
       std::poisson_distribution<> pd(tuple_count/10);
 
       // Create a table
@@ -214,10 +215,13 @@ namespace test {
 //                       table3 + " on " + table2 + ".b = " + table3 + ".b join " + table4 + " on " + table3 + ".b = " +
 //                       table4 + ".b;");
               TestUtil("select * from test1, test2, test3, test4 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
-
+              TestUtil("select * from test1, test2, test4, test3 where test1.b = test2.b and test2.b = test3.b and test2.b = test4.b;");
               TestUtil("select * from test1, test3, test2, test4 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test1, test4, test2, test3 where test1.b = test4.b and test2.b = test4.b and test3.b = test4.b;");
               TestUtil("select * from test1, test3, test4, test2 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
-              TestUtil("select * from test3, test4, test1, test2 where test1.b = test2.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test1, test4, test3, test2 where test1.b = test4.b and test4.b = test3.b and test2.b = test4.b;");
+              TestUtil("select * from test3, test4, test1, test2 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
+              TestUtil("select * from test4, test3, test1, test2 where test1.b = test3.b and test2.b = test3.b and test3.b = test4.b;");
 
               break;
             }
@@ -291,10 +295,12 @@ namespace test {
 
     CreateAndLoadTable("test1", DisType::EXPO);
     CreateAndLoadTable("test2", DisType::EXPO);
+    CreateAndLoadTable("test3", DisType::Normal);
+    CreateAndLoadTable("test4", DisType::Uniform);
 
-    for (int i = 3; i <= 4; i++) {
-      CreateAndLoadTable("test" + std::to_string(i), DisType::Uniform);
-    }
+//    for (int i = 3; i <= 4; i++) {
+//      CreateAndLoadTable("test" + std::to_string(i), DisType::Uniform);
+//    }
 
 //  RunJoinQueries();
     LOG_INFO("************START ANALYZE***********");

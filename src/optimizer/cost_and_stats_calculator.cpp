@@ -467,11 +467,11 @@ void CostAndStatsCalculator::JoinVisitHelper(
       left_table_stats, right_table_stats, property_);
   output_cost_ += is_hash_join
                       ? Cost::HashJoinCost(left_table_stats, right_table_stats,
-//                                           output_stats, predicate, join_type, true)
-                                            output_stats, predicate, join_type)
+                                           output_stats, predicate, join_type, true)
+//                                            output_stats, predicate, join_type)
                       : Cost::NLJoinCost(left_table_stats, right_table_stats,
-//                                         output_stats, predicate, join_type, true);
-                                          output_stats, predicate, join_type);
+                                         output_stats, predicate, join_type, true);
+//                                          output_stats, predicate, join_type);
 
   output_stats_ = output_stats;
 }
