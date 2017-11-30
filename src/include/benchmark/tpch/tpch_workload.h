@@ -30,7 +30,9 @@ class TPCHBenchmark {
   // Run the benchmark
   void RunBenchmark();
 
- private:
+  void LoadTables();
+
+private:
 
   struct QueryConfig {
    public:
