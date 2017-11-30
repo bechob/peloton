@@ -23,6 +23,7 @@
 #include "benchmark/tpch/tpch_workload.h"
 #include "catalog/catalog.h"
 #include "storage/table_factory.h"
+#include "catalog/constraint.h"
 
 namespace peloton {
 namespace benchmark {
