@@ -16,7 +16,7 @@
 
 #include "benchmark/tpch/tpch_configuration.h"
 #include "benchmark/tpch/tpch_database.h"
-#include "benchmark/tpch/tpch_workload.h"
+// #include "benchmark/tpch/tpch_workload.h"
 #include "common/logger.h"
 
 namespace peloton {
