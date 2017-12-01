@@ -38,7 +38,6 @@ static oid_t kTPCHDatabaseId = 44;
 void ForEachLine(const std::string fname, std::function<void(char *)> cb) {
   // Open the file and advise the kernel of sequential access pattern
   int input_fd = open(fname.c_str(), O_RDONLY);
-
   const uint32_t BUFFER_SIZE = 16 * 1024;
   char buffer[BUFFER_SIZE] = {0};
   char *buf_pos = buffer;
@@ -297,12 +296,16 @@ void TPCHDatabase::CreateLineitemTable() const {
 void TPCHDatabase::CreateNationTable() const {
   catalog::Column n_nationkey = {type::TypeId::INTEGER, kIntSize,
                                  "n_nationkey", true};
+
   catalog::Column n_name = {type::TypeId::VARCHAR, 25, "n_name", false};
   catalog::Column n_regionKey = {type::TypeId::INTEGER, kIntSize, "n_regionkey",
                                  true};
 
   catalog::Column n_comment = {type::TypeId::VARCHAR, 152, "n_comment",
                                false};
+
+  catalog::Constraint constraint(ConstraintType::UNIQUE, "n_nationkey_unique");
+  n_nationkey.AddConstraint(constraint);
 
   // Create the schema
   auto nation_cols = {n_nationkey, n_name, n_regionKey, n_comment};
@@ -589,13 +592,12 @@ void TPCHDatabase::LoadPartTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Part finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading Part finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Part);
 }
-
 
 void TPCHDatabase::LoadSupplierTable() {
 
@@ -672,7 +674,9 @@ void TPCHDatabase::LoadSupplierTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Supplier finished: %.2f ms (%lu tuples)\n",
+
+  LOG_INFO("Loading Supplier finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Supplier);
@@ -737,8 +741,8 @@ void TPCHDatabase::LoadPartSupplierTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading PartSupp finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading PartSupp finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::PartSupp);
@@ -749,7 +753,7 @@ void TPCHDatabase::LoadCustomerTable() {
     return;
   }
 
-  const std::string filename = config_.GetPartPath();
+  const std::string filename = config_.GetCustomerPath();
 
   LOG_INFO("Loading Customer ['%s']\n", filename.c_str());
 
@@ -836,13 +840,12 @@ void TPCHDatabase::LoadCustomerTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Customer finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading Customer finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Customer);
 }
-
 
 void TPCHDatabase::LoadNationTable() {
 
@@ -883,7 +886,9 @@ void TPCHDatabase::LoadNationTable() {
     tuple.SetValue(3, type::ValueFactory::GetVarcharValue(std::string{p, p_end}), pool.get());
 
     // Insert into table
-    ItemPointer tuple_slot_id = table.InsertTuple(&tuple);
+    ItemPointer *index_entry_ptr = nullptr;
+    ItemPointer tuple_slot_id = table.InsertTuple(&tuple, txn, &index_entry_ptr);
+
     PL_ASSERT(tuple_slot_id.block != INVALID_OID);
     PL_ASSERT(tuple_slot_id.offset != INVALID_OID);
     txn_manager.PerformInsert(txn, tuple_slot_id);
@@ -900,13 +905,13 @@ void TPCHDatabase::LoadNationTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Nation finished: %.2f ms (%lu tuples)\n",
 
+  LOG_INFO("Loading Nation finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Nation);
 }
-
 
 void TPCHDatabase::LoadLineitemTable() {
   // Short-circuit if table is already loaded
@@ -1020,8 +1025,8 @@ void TPCHDatabase::LoadLineitemTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Lineitem finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading Lineitem finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Lineitem);
@@ -1083,13 +1088,12 @@ void TPCHDatabase::LoadRegionTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Region finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading Region finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Region);
 }
-
 
 void TPCHDatabase::LoadOrdersTable() {
   // Short-circuit if table is already loaded
@@ -1169,8 +1173,8 @@ void TPCHDatabase::LoadOrdersTable() {
   }
 
   timer.Stop();
-  LOG_INFO("Loading Orders finished: %.2f ms (%lu tuples)\n",
-           timer.GetDuration(), num_tuples);
+  LOG_INFO("Loading Orders finished: %.2f ms (%d tuples)\n",
+           timer.GetDuration(), (int) num_tuples);
 
   // Set table as loaded
   SetTableIsLoaded(TableId::Orders);
