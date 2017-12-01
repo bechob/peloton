@@ -69,6 +69,13 @@ class Cost {
       const ValueCondition& condition,
       std::shared_ptr<TableStats>& output_stats);
 
+  static double ScanCostWithSample(
+    const std::shared_ptr<TableStats> &input_stats,
+    std::shared_ptr<TableStats> &output_stats,
+    const expression::AbstractExpression *predicate,
+    bool enable_index
+  );
+
   /*
    *  Combine two stats with conjunction clause.
    *  ExpressionType type can be CONJUNCTION_AND / CONJUNCTION_OR
