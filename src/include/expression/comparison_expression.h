@@ -15,6 +15,7 @@
 #include "common/sql_node_visitor.h"
 #include "expression/abstract_expression.h"
 #include "type/value_factory.h"
+#include "function/string_functions.h"
 
 namespace peloton {
 namespace expression {
@@ -65,6 +66,18 @@ class ComparisonExpression : public AbstractExpression {
           return type::ValueFactory::GetBooleanValue(vl.CompareNotEquals(vr));
         }
         return type::ValueFactory::GetBooleanValue(true);
+      }
+      case (ExpressionType::COMPARE_LIKE): {
+        return type::ValueFactory::GetBooleanValue(function::StringFunctions::Like(vl.GetData(),
+                                                                             vl.GetLength(),
+                                                                             vr.GetData(),
+                                                                             vr.GetLength()));
+      }
+      case (ExpressionType::COMPARE_NOTLIKE): {
+        return type::ValueFactory::GetBooleanValue(!function::StringFunctions::Like(vl.GetData(),
+                                                                                   vl.GetLength(),
+                                                                                   vr.GetData(),
+                                                                                   vr.GetLength()));
       }
       default:
         throw Exception("Invalid comparison expression type.");

@@ -189,7 +189,7 @@ double TupleSampler::FilterSamples(const expression::AbstractExpression *predica
   }
   size_t size = sampled_tuples.size();
   for (auto it = sampled_tuples.begin() ; it != sampled_tuples.end();) {
-    LOG_INFO("%s", (*it)->GetInfo().c_str());
+    LOG_TRACE("%s", (*it)->GetInfo().c_str());
     if (predicate->Evaluate((*it).get(), nullptr, nullptr).IsFalse()) {
       it = sampled_tuples.erase(it);
     } else {

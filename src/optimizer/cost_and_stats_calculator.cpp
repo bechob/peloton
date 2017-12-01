@@ -141,10 +141,12 @@ double updateMultipleConjuctionStats(
     const expression::AbstractExpression *expr,
     std::shared_ptr<TableStats> &output_stats, bool enable_index) {
   if (input_stats->GetSampler() != nullptr) {
-    input_stats->GetSampler()->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
+    if (input_stats->GetSampler()->GetSampledTuples().empty()) {
+      input_stats->GetSampler()->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
+    }
     auto predicate = expr->Copy();
     bindPredicate(predicate, input_stats);
-    LOG_INFO("selectivity %f", input_stats->GetSampler()->FilterSamples(predicate));
+    return Cost::ScanCostWithSample(input_stats, output_stats, predicate, enable_index);
   }
   if (expr->GetChild(LEFT_CHILD_INDEX)->GetExpressionType() ==
           ExpressionType::VALUE_TUPLE ||

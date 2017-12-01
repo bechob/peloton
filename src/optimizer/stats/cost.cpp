@@ -51,6 +51,28 @@ double Cost::SingleConditionIndexScanCost(
   return index_cost + scan_cost;
 }
 
+
+double Cost::ScanCostWithSample(
+  const std::shared_ptr<TableStats> &input_stats,
+  std::shared_ptr<TableStats> &output_stats,
+  const expression::AbstractExpression *predicate,
+  bool enable_index
+) {
+
+  double selectivity = input_stats->GetSampler()->FilterSamples(predicate);
+
+  output_stats->num_rows = (size_t) (input_stats->num_rows * selectivity);
+  LOG_INFO("Estimated output size %lu", output_stats->num_rows);
+  if (enable_index) {
+    double index_height = default_index_height(input_stats->num_rows);
+    double index_cost = index_height * DEFAULT_INDEX_TUPLE_COST;
+    double scan_cost = selectivity * DEFAULT_TUPLE_COST;
+    return index_cost + scan_cost;
+  } else {
+    return input_stats->num_rows * DEFAULT_TUPLE_COST;
+  }
+}
+
 void Cost::CombineConjunctionStats(const std::shared_ptr<TableStats> &lhs,
                                    const std::shared_ptr<TableStats> &rhs,
                                    const size_t num_rows,
