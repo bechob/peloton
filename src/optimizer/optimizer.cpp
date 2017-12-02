@@ -41,6 +41,8 @@
 #include "storage/data_table.h"
 
 #include "binder/bind_node_visitor.h"
+#include "optimizer/stats/table_stats.h"
+
 
 using std::vector;
 using std::unordered_map;
@@ -275,6 +277,11 @@ unique_ptr<planner::AbstractPlan> Optimizer::ChooseBestPlan(
   auto plan = OptimizerPlanToPlannerPlan(op, requirements, required_input_props,
                                          children_plans, children_expr_map,
                                          output_expr_map);
+
+  auto stats = std::dynamic_pointer_cast<TableStats>(gexpr->GetStats(requirements));
+  if (stats != nullptr) {
+    plan->SetCardinality((int) stats->num_rows);
+  }
 
   LOG_TRACE("Finish Choosing best plan for group %d", id);
   return plan;

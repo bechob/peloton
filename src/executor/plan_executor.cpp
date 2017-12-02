@@ -90,6 +90,8 @@ void PlanExecutor::ExecutePlan(
         }
       }
     }
+    LOG_INFO("[INTERPRET] Plan %s tuple processed %lu estimated size %d",
+             plan->GetInfo().c_str(), tuples.size(), plan->GetCardinality());
     p_status.m_processed = executor_context->num_processed;
     p_status.m_result = ResultType::SUCCESS;
     p_status.m_result_slots = nullptr;
@@ -125,6 +127,7 @@ void PlanExecutor::ExecutePlan(
       result.push_back(std::move(res));
     }
   }
+  LOG_INFO("Plan %s tuple processed %lu estimated size %d", plan->GetInfo().c_str(), results.size(), plan->GetCardinality());
   p_status.m_processed = executor_context->num_processed;
   p_status.m_result = ResultType::SUCCESS;
   p_status.m_result_slots = nullptr;
