@@ -140,14 +140,14 @@ double updateMultipleConjuctionStats(
     const std::shared_ptr<TableStats> &input_stats,
     const expression::AbstractExpression *expr,
     std::shared_ptr<TableStats> &output_stats, bool enable_index) {
-  if (input_stats->GetSampler() != nullptr) {
-    if (input_stats->GetSampler()->GetSampledTuples().empty()) {
-      input_stats->GetSampler()->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
-    }
-    auto predicate = expr->Copy();
-    bindPredicate(predicate, input_stats);
-    return Cost::ScanCostWithSample(input_stats, output_stats, predicate, enable_index);
-  }
+  // if (input_stats->GetSampler() != nullptr) {
+  //   if (input_stats->GetSampler()->GetSampledTuples().empty()) {
+  //     input_stats->GetSampler()->AcquireSampleTuples(DEFAULT_SAMPLE_SIZE);
+  //   }
+  //   auto predicate = expr->Copy();
+  //   bindPredicate(predicate, input_stats);
+  //   return Cost::ScanCostWithSample(input_stats, output_stats, predicate, enable_index);
+  // }
   if (expr->GetChild(LEFT_CHILD_INDEX)->GetExpressionType() ==
           ExpressionType::VALUE_TUPLE ||
       expr->GetChild(RIGHT_CHILD_INDEX)->GetExpressionType() ==
@@ -470,6 +470,7 @@ void CostAndStatsCalculator::JoinVisitHelper(
       std::dynamic_pointer_cast<TableStats>(child_stats_.at(RIGHT_CHILD_INDEX));
   if (left_table_stats == nullptr || right_table_stats == nullptr) {
     output_cost_ = is_hash_join ? DEFAULT_HASH_JOIN_COST : DEFAULT_NL_JOIN_COST;
+    LOG_INFO("stats unavailable");
     return;
   }
   output_cost_ = getCostOfChildren(child_costs_);
@@ -481,8 +482,10 @@ void CostAndStatsCalculator::JoinVisitHelper(
       is_hash_join
           ? Cost::HashJoinCost(left_table_stats, right_table_stats,
                                output_stats, predicate, join_type, true)
+                               // output_stats, predicate, join_type)
           : Cost::NLJoinCost(left_table_stats, right_table_stats, output_stats,
                              predicate, join_type, true);
+                             // predicate, join_type);
 
   output_stats_ = output_stats;
 }

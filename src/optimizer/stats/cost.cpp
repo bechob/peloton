@@ -278,6 +278,7 @@ bool Cost::UpdateJoinOutputStatsWithSampling(
     return enable_sampling;
   }
   output_stats->UpdateJoinColumnStats(column_ids);
+  LOG_INFO("Use samples");
   return true;
 }
 
@@ -372,6 +373,7 @@ void Cost::UpdateJoinOutputStats(
     std::shared_ptr<TableStats> &output_stats,
     const std::shared_ptr<expression::AbstractExpression> predicate,
     JoinType join_type, bool enable_sampling) {
+  LOG_INFO("update join output");
   size_t adjustment;
   switch (join_type) {
     case JoinType::INNER:
@@ -417,6 +419,7 @@ void Cost::UpdateJoinOutputStats(
         !UpdateJoinOutputStatsWithSampling(left_input_stats, right_input_stats,
                                            output_stats, left_column_name,
                                            right_column_name)) {
+      LOG_INFO("sample not available");
       double left_cardinality, right_cardinality;
       if (left_input_stats->HasColumnStats(left_column_name)) {
         left_cardinality = left_input_stats->GetCardinality(left_column_name);
@@ -445,11 +448,15 @@ void Cost::UpdateJoinOutputStats(
                      std::max(left_cardinality, right_cardinality)) +
             adjustment;
       }
+
     }
+    
   } else {
     // conjunction predicates
-    output_stats->num_rows = default_join_size;
+    output_stats->num_rows = default_join_size + adjustment;
+    LOG_INFO("expression type not supported");
   }
+  
 }
 
 void Cost::UpdateConditionStats(const std::shared_ptr<TableStats> &input_stats,
