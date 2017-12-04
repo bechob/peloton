@@ -278,7 +278,7 @@ void CostAndStatsCalculator::Visit(const PhysicalSeqScan *op) {
     output_stats_ = output_stats;
     return;
   }
-
+  LOG_INFO("SeqScan predicate %s", predicate->GetInfo().c_str());
   output_cost_ += updateMultipleConjuctionStats(table_stats, predicate.get(),
                                                 output_stats, false);
   output_stats_ = output_stats;
@@ -458,7 +458,9 @@ void CostAndStatsCalculator::JoinVisitHelper(
     std::shared_ptr<expression::AbstractExpression> predicate,
     JoinType join_type, bool is_hash_join) {
   PL_ASSERT(child_stats_.size() == 2);
-
+  if (predicate != nullptr) {
+    LOG_INFO("join predicate %s", predicate->GetInfo().c_str());
+  }
   auto left_table_stats =
       std::dynamic_pointer_cast<TableStats>(child_stats_.at(LEFT_CHILD_INDEX));
   auto right_table_stats =
